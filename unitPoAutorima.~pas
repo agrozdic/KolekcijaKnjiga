@@ -1,0 +1,85 @@
+unit unitPoAutorima;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, OleCtrls, VCFI, StdCtrls, CheckLst;
+
+type
+  TformPoAutorima = class(TForm)
+    VtChart1: TVtChart;
+    CheckBox: TCheckListBox;
+    Label1: TLabel;
+    Prikazi: TButton;
+    Izadji: TButton;
+    procedure IzadjiClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure PrikaziClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  formPoAutorima: TformPoAutorima;
+
+implementation
+
+uses unitDM;
+
+{$R *.dfm}
+
+procedure TformPoAutorima.IzadjiClick(Sender: TObject);
+  begin
+    Close;
+  end;
+
+procedure TformPoAutorima.FormActivate(Sender: TObject);
+  begin
+    DM.AUTORI.Open;
+    DM.AUTORI.First;
+    while(not(DM.AUTORI.Eof)) do
+      begin
+        CheckBox.Items.Add(DM.AUTORI.FieldByName('Ime').AsString + ' ' + DM.AUTORI.FieldByName('Prezime').AsString);
+        DM.AUTORI.Next;
+      end;
+    DM.AUTORI.Close;
+  end;
+
+procedure TformPoAutorima.PrikaziClick(Sender: TObject);
+  var
+    i, br, br1, br2, br3: integer;
+  begin
+    DM.AUTORI.Open;
+    DM.IZDANJA.Open;
+    br:=0;
+    br1:=0;
+    br2:=0;
+    br3:=0;
+    for i:=0 to CheckBox.Items.Count-1 do
+        if(CheckBox.Checked[i])
+          then
+            br:=br+1;
+    if(br=3)
+      then
+        begin
+          DM.IZDANJA.First;
+          while(not(DM.IZDANJA.Eof)) do
+            begin
+              
+              DM.IZDANJA.Next;
+            end;
+        end
+      else
+        begin
+          showmessage('Mora biti obelezeno tacno tri autora!');
+          for i:=0 to CheckBox.Items.Count-1 do
+            CheckBox.Checked[i]:=False;
+        end;
+    DM.AUTORI.Close;
+    DM.IZDANJA.Close;
+  end;
+
+end.
